@@ -1,0 +1,10 @@
+.env
+.dev.env
+
+tmp
+build
+
+__pycache__
+.pynb_checkpoints
+*.egg-info
+*.mp4
