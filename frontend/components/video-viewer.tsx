@@ -16,9 +16,11 @@ const VideoViewer = () => {
   };
 
   return (
-    <div>
-      <div>
+    <div className='flex flex-col items-center'>
+      <div className='flex flex-col w-full h-screen items-center'>
         <ReactPlayer
+          width='100%'
+          height='75%'
           ref={ref}
           playing={playing}
           onPause={() => setPlaying(false)}
