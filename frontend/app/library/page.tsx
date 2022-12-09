@@ -11,7 +11,7 @@ const Library = async () => {
   return (
     <div>
       <h1>Library</h1>
-      <VideoList videos={data} />
+      <VideoList />
     </div>
   );
 };

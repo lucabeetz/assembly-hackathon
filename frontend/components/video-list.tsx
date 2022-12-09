@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import supabase from '../utils/supabase';
 
 const VideoList = () => {
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos]: any[] = useState([]);
 
   const getVideos = async () => {
     const { data, error } = await supabase.from('videos').select('*');
 
     if (data) {
-      setVideos(data);
+      setVideos(() => data);
     }
   };
 
@@ -20,7 +20,7 @@ const VideoList = () => {
 
   return (
     <div>
-      {videos.map((video, index): any => (
+      {videos.map((video: any, index: number) => (
         <div key={index}>
           <p>Title: {video.title}</p>
         </div>
