@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 
 def concat_paragraphs(paragraphs: list[tuple[str, int|str]]):
-    """Concatenates paragraphs that are not separated by a page break.
+    """Concatenates paragraphs
 
     Args:
         paragraphs (list[tuple[str, int]]): List of paragraphs and their page number.
@@ -26,6 +26,7 @@ def concat_paragraphs(paragraphs: list[tuple[str, int|str]]):
             curr_i_new += 1
 
     return new_paragraphs
+
 
 def get_paragraphs_from_pdf(file):
     doc = fitz.open(file)

@@ -188,7 +188,7 @@ async def transcribe(file: UploadFile, resource_id: str = Form()):
 
     # Get paragraphs from file
     if file.content_type == 'application/pdf':
-        paragraphs = get_paragraphs_from_pdf(file_contents)
+        paragraphs = get_paragraphs_from_pdf(local_path)
     elif file.content_type == 'application/epub+zip':
         enumerate_p_tags_epub(local_path)
         paragraphs = get_paragraphs_from_epub(local_path)
