@@ -55,21 +55,21 @@ def enumerate_p_tags_epub(epub_filepath, book_uid = None):
 def get_paragraphs_from_epub(epub_filepath):
     def chapter_to_paragraphs(chapter, i):
         soup = BeautifulSoup(chapter.get_body_content(), 'html.parser')
-        paragraphs = {}
+        paragraphs: list[tuple[str, str]] = []
         for p in soup.find_all('p'):
             p_id = p['id']
             if len(p.get_text().split(' ')) > 5:
-                paragraphs[p_id] = p.get_text()
+                paragraphs.append(p.get_text(), p_id)
         return paragraphs, i
         
     book = epub.read_epub(epub_filepath)
     chapters = list(book.get_items_of_type(ebooklib.ITEM_DOCUMENT))
 
-    paragraphs = []
+    paragraphs: list[tuple[str,str]] = []
     i = 0
     for c in chapters:
         paras, i = chapter_to_paragraphs(c,i)
         if len(paras) > 0:
             paragraphs.append(paras)
 
-    return {"paragraphs": paragraphs}
+    return paragraphs

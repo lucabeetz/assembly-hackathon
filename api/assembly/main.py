@@ -1,9 +1,10 @@
 import os
+from api.file_reader import get_paragraphs_from_pdf, get_paragraphs_from_epub
 import cohere
 import pinecone
 import requests
 from tqdm import tqdm
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, HTTPException, Form
 from pydantic import BaseModel
 from pytube import YouTube
 
@@ -156,3 +157,51 @@ def post_assembly(request: AssemblyRequest):
     )
     
     print(supabase_response)
+
+
+'''
+Submit a file for embedding
+
+This endpoint creates paragraphs and returns the paragraph embeddings.
+'''
+
+@app.post('/upload')
+def transcribe(file: UploadFile, resource_id: str = Form()):
+    print(f'Received {file.filename} of type: {file.content_type}')
+    if file.content_type not in ['application/pdf', 'application/epub+zip']:
+        raise HTTPException(status_code=400, detail='File type not supported')
+
+    paragraphs: list[tuple[str, int|str]] = []
+
+    # Get paragraphs from file
+    if file.content_type == 'application/pdf':
+        paragraphs = get_paragraphs_from_pdf(file.file)
+    elif file.content_type == 'application/epub+zip':
+        paragraphs = get_paragraphs_from_epub(file.file)
+
+    # Embed paragraphs
+    paragraphs_texts, paragraphs_ids = [(text, locater) for (text, locater) in paragraphs]
+    response = co.embed(paragraphs_texts, model='large')
+    page_embeddings = response.embeddings
+    print(f'Cohere embeddings: {len(page_embeddings)}, dim: {len(page_embeddings[0])}')
+
+    print(f'Finished embedding, uploading to pinecone ...')
+
+    data = []
+    for i in range(len(page_embeddings)):
+        data.append((
+            f'{resource_id}-{i}',
+            page_embeddings[i],
+            {
+                'resource_id': resource_id,
+                'paragraph_id': paragraphs_ids[i],
+                'content_type': file.content_type,
+            }
+        ))
+
+        if len(data) == 32 or i == (len(paragraphs) - 1):
+            paragraphs_index.upsert(data)
+            data = []
+
+    return {'num_embeddings': len(page_embeddings), 'resource_id': resource_id}
+
