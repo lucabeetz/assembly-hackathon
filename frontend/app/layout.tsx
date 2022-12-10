@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         {children}
 
-        <VerbelFooter/>
+        {/* <VerbelFooter/> */}
       </body>
     </html>
   );

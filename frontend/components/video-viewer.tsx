@@ -9,24 +9,26 @@ type Paragraph = {
   end: number;
 };
 
-const VideoViewer = () => {
+const VideoViewer = ({ video_url, id }) => {
   const [playing, setPlaying] = useState(false);
 
   const [transcription, setTranscription] = useState<Paragraph[]>([]);
-  const [paragraphTimestamps, setParagraphTimestamps] = useState<number[]>([]);
+  const [paragraphTimestamps, setParagraphTimestamps] = useState<number[][]>([]);
   const [highlightedParagraph, setHighlightedParagraph] = useState<HTMLElement | null>(null);
 
   const ref = useRef<ReactPlayer>(null);
 
   useEffect(() => {
     const loadTranscription = async () => {
-      const res = await fetch('https://ctejpbhbokuzzivioffl.supabase.co/storage/v1/object/public/transcriptions/paragraphs.json')
+      const res = await fetch(`https://ctejpbhbokuzzivioffl.supabase.co/storage/v1/object/public/public/${id}.json`)
       const body = await res.json();
 
       if (body) {
         setTranscription(body.paragraphs);
+        console.log(body.paragraphs);
 
-        const timestamps = body.paragraphs.map((paragraph: any) => paragraph.start / 1000);
+
+        const timestamps = body.paragraphs.map((paragraph: any) => [paragraph.start / 1000, paragraph.end / 1000]);
         setParagraphTimestamps(timestamps);
       }
     };
@@ -34,17 +36,17 @@ const VideoViewer = () => {
     loadTranscription();
   }, []);
 
-  const handlePlay = () => {
-    setPlaying(!playing);
-  };
-
   const handleProgress = (progress: any) => {
-    const currentParagraph = paragraphTimestamps.findIndex((timestamp: number) => progress.playedSeconds < timestamp) - 1;
+    const currentParagraph = paragraphTimestamps.findIndex((timestamp: number[]) => timestamp[0] <= progress.playedSeconds && progress.playedSeconds < timestamp[1]);
 
-    if (currentParagraph > 0) {
+    if (currentParagraph === -1)
       highlightedParagraph?.classList.remove('underline');
+    if (currentParagraph >= 0) {
 
       const paragraph = document.getElementById(`paragraph-${currentParagraph}`);
+      if (paragraph === highlightedParagraph) return;
+
+      highlightedParagraph?.classList.remove('underline');
       paragraph?.scrollIntoView({ behavior: 'smooth' });
       paragraph?.classList.add('underline');
 
@@ -62,6 +64,7 @@ const VideoViewer = () => {
     paragraph?.scrollIntoView({ behavior: 'smooth' });
     paragraph?.classList.add('underline');
 
+
     setHighlightedParagraph(paragraph);
   };
 
@@ -77,11 +80,7 @@ const VideoViewer = () => {
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
           controls
-          url={'https://www.youtube.com/watch?v=YoXxevp1WRQ'} />
-
-        <div onClick={handlePlay}>
-          {playing ? 'Pause' : 'Play'}
-        </div>
+          url={video_url} />
       </div>
       <div className='w-1/2 h-1/4 overflow-auto'>
         {transcription.map((paragraph, index) => (

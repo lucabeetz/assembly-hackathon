@@ -40,7 +40,7 @@ const VideoList = () => {
 
         {videos.map((video: any, index: number) => (
           <Table.Row
-            className="bg-white dark:border-gray-700 dark:bg-gray-800"
+            className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
             key={video.id}
             onClick={e => handleClick(video.id)}
           >
