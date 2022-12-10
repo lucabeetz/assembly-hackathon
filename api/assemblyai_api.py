@@ -1,8 +1,8 @@
 import time
 import requests
-from pytube import YouTube
 import os
-import ffmpeg
+from pytube import YouTube
+
 
 # assembly ai parameters
 api_key = os.environ['AAI_API_KEY']
@@ -20,9 +20,8 @@ header = {
 }
 
 def download_yt(yt_url, filename):
-    YouTube(yt_url).streams.filter(only_audio=True)[0].download(filename=filename)
-    # correct file length
-    ffmpeg.input(filename).output(filename).run(overwrite_output=True)
+    YouTube(yt_url).streams.get_audio_only().download(filename=filename)
+
 
 def upload_file(filename):
     def read_file(filename, chunk_size=5242880):
@@ -44,7 +43,6 @@ def transcribe_file(file_url):
     response = requests.post(transcript_endpoint, json=json, headers=header)
     return response.json()
 
-# Wait for the transcript to finish
 def wait_for_completion(polling_endpoint):
     while True:
         polling_response = requests.get(polling_endpoint, headers=header)
