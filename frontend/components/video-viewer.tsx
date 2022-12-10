@@ -3,11 +3,17 @@ import { useState, useRef, useEffect } from 'react';
 import ReactPlayer from 'react-player'
 import supabase from '../utils/supabase';
 
+type Paragraph = {
+  text: string;
+  start: number;
+  end: number;
+};
+
 const VideoViewer = () => {
   const [playing, setPlaying] = useState(false);
 
-  const [transcription, setTranscription] = useState([]);
-  const [paragraphTimestamps, setParagraphTimestamps] = useState([]);
+  const [transcription, setTranscription] = useState<Paragraph[]>([]);
+  const [paragraphTimestamps, setParagraphTimestamps] = useState<number[]>([]);
   const [highlightedParagraph, setHighlightedParagraph] = useState<HTMLElement | null>(null);
 
   const ref = useRef<ReactPlayer>(null);
