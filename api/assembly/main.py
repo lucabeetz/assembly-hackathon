@@ -52,6 +52,7 @@ def transcribe(request: TranscribeRequest):
             {
                 'video_id': request.video_id,
                 'paragraph_id': i,
+                'text': paragraph_texts[i],
             }
         ))
 
@@ -66,3 +67,31 @@ def transcribe(request: TranscribeRequest):
     }
 
     return response
+
+
+class QueryRequest(BaseModel):
+    query: str
+
+@app.post('/query')
+def post_query(request: QueryRequest):
+    # Embed query
+    cohere_response = co.embed([request.query], model='large')
+    query_embedding = cohere_response.embeddings[0]
+
+    # Query pinecone
+    query_results = paragraphs_index.query(
+        query_embedding,
+        top_k=5,
+        include_metadata=True)['matches']
+
+    # Construct response
+    response_items = []
+    for entry in query_results:
+        response_items.append({
+            'score': entry['score'],
+            'video_id': entry.metadata['video_id'],
+            'paragraph_id': entry.metadata['paragraph_id'],
+            'text': entry.metadata['text'],
+        })
+
+    return response_items
