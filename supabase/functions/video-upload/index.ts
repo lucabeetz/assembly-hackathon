@@ -5,7 +5,9 @@
 import { serve } from "https://deno.land/std@0.131.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-console.log("Hello from Functions!")
+const TRANSCRIPTION_API_ENDPOINT = 'https://62cc-188-195-2-108.eu.ngrok.io/transcribe';
+
+console.log("video-upload function running ...")
 
 serve(async (req) => {
   const { video_url } = await req.json()
@@ -20,22 +22,37 @@ serve(async (req) => {
     { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
   );
 
-  // Get transcription, title and thumbnail from api
-  const title = "CS50P - Lecture 5 - Unit Tests";
-  const thumbnail = "https://i.ytimg.com/vi/3Q_oYDQ2whs/maxresdefault.jpg";
+  // Create new table entry to get video_id
+  const insertResponse = await supabase
+    .from("videos")
+    .insert({ video_url })
+    .select("id");
+  const video_id = insertResponse.data?.[0].id;
+  console.log(video_id);
+  
+
+  // Submit video for transcription to api
+  const transcriptionResponse = await fetch(TRANSCRIPTION_API_ENDPOINT, {
+    method: "POST",
+    body: JSON.stringify({ video_id, video_url }),
+    headers: { "Content-Type": "application/json" },
+  });
+  const transcriptionResponseBody = await transcriptionResponse.json();
+  const { video_title, video_thumbnail, transcription_id} = transcriptionResponseBody;
 
   // Save title and thumbnail to videos table
   const upsertRes = await supabase
     .from("videos")
-    .insert({ title, thumbnail, video_url })
+    .upsert({ id: video_id, title: video_title, thumbnail: video_thumbnail })
     .select("id");
-
   console.log(upsertRes);
 
-  // Save transcription to storage
+  const responseBody = {
+    video_id,
+  }
 
   return new Response(
-    JSON.stringify(data),
+    JSON.stringify(responseBody),
     { headers: { "Content-Type": "application/json" } },
   )
 })
