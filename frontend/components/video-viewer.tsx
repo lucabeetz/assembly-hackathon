@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { timeStamp } from 'console';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 import ReactPlayer from 'react-player'
 import supabase from '../utils/supabase';
@@ -9,7 +10,7 @@ type Paragraph = {
   end: number;
 };
 
-const VideoViewer = ({ video_url, id }) => {
+const VideoViewer = ({ video_url, id, initialTimestamp }) => {
   const [playing, setPlaying] = useState(false);
 
   const [transcription, setTranscription] = useState<Paragraph[]>([]);
@@ -34,39 +35,47 @@ const VideoViewer = ({ video_url, id }) => {
     };
 
     loadTranscription();
+
+    console.log('initialTimestamp', initialTimestamp);
+
+    if (initialTimestamp) {
+      ref.current?.seekTo(initialTimestamp, 'seconds');
+    }
   }, []);
 
   const handleProgress = (progress: any) => {
-    const currentParagraph = paragraphTimestamps.findIndex((timestamp: number[]) => timestamp[0] <= progress.playedSeconds && progress.playedSeconds < timestamp[1]);
+    changeHighlightedParagraph(progress.playedSeconds)
+  };
+
+  const seekVideo = (seconds: number, paragraph_id: number) => {
+    setPlaying(true);
+    ref.current?.seekTo(seconds, 'seconds');
+    changeHighlightedParagraph(seconds);
+  };
+
+  const changeHighlightedParagraph = (currentTimestamp: number) => {
+    const currentParagraph = paragraphTimestamps.findIndex((timestamp: number[]) => timestamp[0] <= currentTimestamp && currentTimestamp < timestamp[1]);
 
     if (currentParagraph === -1)
       highlightedParagraph?.classList.remove('underline');
-    if (currentParagraph >= 0) {
-
+    else {
       const paragraph = document.getElementById(`paragraph-${currentParagraph}`);
       if (paragraph === highlightedParagraph) return;
 
       highlightedParagraph?.classList.remove('underline');
       paragraph?.scrollIntoView({ behavior: 'smooth' });
       paragraph?.classList.add('underline');
-
+      
       setHighlightedParagraph(paragraph);
     }
-  };
+  }
 
-  const seekVideo = (seconds: number, paragraph_id: number) => {
-    setPlaying(true);
-    ref.current?.seekTo(seconds, 'seconds');
-
-    highlightedParagraph?.classList.remove('underline');
-
-    const paragraph = document.getElementById(`paragraph-${paragraph_id}`);
-    paragraph?.scrollIntoView({ behavior: 'smooth' });
-    paragraph?.classList.add('underline');
-
-
-    setHighlightedParagraph(paragraph);
-  };
+  const onReady = useCallback(() => {
+    if (initialTimestamp) {
+      ref.current?.seekTo(initialTimestamp, 'seconds');
+      changeHighlightedParagraph(initialTimestamp);
+    }
+  }, [ref.current, initialTimestamp]);
 
   return (
     <div className='flex flex-col items-center h-screen'>
@@ -80,7 +89,9 @@ const VideoViewer = ({ video_url, id }) => {
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
           controls
-          url={video_url} />
+          url={video_url}
+          onReady={onReady}
+        />
       </div>
       <div className='w-1/2 h-1/4 overflow-auto'>
         {transcription.map((paragraph, index) => (
