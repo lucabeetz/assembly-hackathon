@@ -1,4 +1,5 @@
 import os
+from api.file_reader import get_paragraphs_from_pdf, get_paragraphs_from_epub
 import cohere
 import pinecone
 import requests
