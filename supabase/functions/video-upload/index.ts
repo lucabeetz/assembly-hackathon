@@ -37,6 +37,7 @@ serve(async (req) => {
     body: JSON.stringify({ video_id, video_url }),
     headers: { "Content-Type": "application/json" },
   });
+  console.log(transcriptionResponse);
   const transcriptionResponseBody = await transcriptionResponse.json();
   const { video_title, video_thumbnail, transcription_id} = transcriptionResponseBody;
 
