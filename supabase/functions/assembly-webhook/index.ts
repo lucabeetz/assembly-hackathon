@@ -3,6 +3,8 @@
 // This enables autocomplete, go to definition, etc.
 
 import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 import { corsHeaders } from "../_shared/cors.ts";
 
 console.log("assembly-webhook function starting...");
@@ -12,8 +14,26 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Get supabase client
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
+  );
+
   const { transcription_id, paragraphs, video_id } = await req.json()
   console.log(`Received transcription: ${transcription_id}`);
+
+  // Save paragraphs to storage
+  const storageResponse = await supabase
+    .storage
+    .from('public')
+    .upload(`${video_id}.json`, JSON.stringify({ paragraphs }));
+
+  // Set video status to complete
+  const upsertRes = await supabase
+    .from('videos')
+    .upsert({ id: video_id, processed: true });
 
   const responseBody = {
     transcription_id,

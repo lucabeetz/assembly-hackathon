@@ -5,7 +5,7 @@
 import { serve } from "https://deno.land/std@0.131.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const TRANSCRIPTION_API_ENDPOINT = 'https://62cc-188-195-2-108.eu.ngrok.io/transcribe';
+const TRANSCRIPTION_API_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/transcribe'
 
 console.log("video-upload function running ...")
 

@@ -9,8 +9,7 @@ from pytube import YouTube
 
 from assembly.utils import start_transcription, get_paragraphs_from_transcript
 
-# AZURE_WEBHOOK_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/assembly'
-AZURE_WEBHOOK_ENDPOINT = 'https://62cc-188-195-2-108.eu.ngrok.io/assembly'
+AZURE_WEBHOOK_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/assembly'
 
 TRANSCRIPTION_EDGE_FUNCTION = 'https://ctejpbhbokuzzivioffl.functions.supabase.co/assembly-webhook'
 
