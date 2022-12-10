@@ -135,9 +135,10 @@ def post_assembly(request: AssemblyRequest):
             f'{video_id}_{i}',
             embedding,
             {
-                'video_id': video_id,
+                'resource_id': video_id,
                 'paragraph_id': i,
                 'text': paragraph_texts[i],
+                'content_type': 'video'
             }
         ))
 
@@ -213,7 +214,7 @@ async def transcribe(file: UploadFile, resource_id: str = Form()):
                 'resource_id': resource_id,
                 'paragraph_id': paragraphs_ids[i],
                 'text': paragraphs_texts[i],
-                'content_type': file.content_type,
+                'content_type': 'pdf' if file.content_type == 'application/pdf' else 'epub'
             }
         ))
 
