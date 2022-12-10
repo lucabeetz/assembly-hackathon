@@ -6,6 +6,27 @@ from ebooklib import epub
 from bs4 import BeautifulSoup
 
 
+def concat_paragraphs(paragraphs: list[tuple[str, int|str]]):
+    """Concatenates paragraphs that are not separated by a page break.
+
+    Args:
+        paragraphs (list[tuple[str, int]]): List of paragraphs and their page number.
+
+    Returns:
+        list[tuple[str, int]]: List of concatenated paragraphs and their page number.
+    """
+    new_paragraphs: list[tuple[str, int|str]] = [paragraphs[0]]
+    curr_i_new = 0
+    for p in paragraphs:
+        if len(new_paragraphs[curr_i_new][0].split(' ')) < 200:
+            new_text, new_locator = new_paragraphs[curr_i_new]
+            new_paragraphs[curr_i_new] = (new_text + ' ' + p[0], new_locator)
+        else:
+            new_paragraphs.append(p)
+            curr_i_new += 1
+
+    return new_paragraphs
+
 def get_paragraphs_from_pdf(file):
     doc = fitz.open(file)
     paragraphs:list[tuple[str, int]] = []
@@ -16,6 +37,7 @@ def get_paragraphs_from_pdf(file):
             if b[-1] == 0 and len(b[4].split(' ')) > 10:
                 paragraphs.append((b[4].strip('\n'), page.number))
 
+    paragraphs = concat_paragraphs(paragraphs)
     return paragraphs
 
 
@@ -85,4 +107,5 @@ def get_paragraphs_from_epub(epub_filepath):
             for p in paras:
                 paragraphs.append(p)
 
+    paragraphs = concat_paragraphs(paragraphs)
     return paragraphs
