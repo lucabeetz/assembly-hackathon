@@ -13,7 +13,6 @@ AZURE_WEBHOOK_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.az
 
 TRANSCRIPTION_EDGE_FUNCTION = 'https://ctejpbhbokuzzivioffl.functions.supabase.co/assembly-webhook'
 
-
 app = FastAPI()
 
 co = cohere.Client(api_key=os.environ['COHERE_API_KEY'])
