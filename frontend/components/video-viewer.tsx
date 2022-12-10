@@ -59,6 +59,7 @@ const VideoViewer = () => {
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
+          controls
           url={'https://www.youtube.com/watch?v=YoXxevp1WRQ'} />
 
         <div onClick={handlePlay}>
@@ -77,4 +78,3 @@ const VideoViewer = () => {
 };
 
 export default VideoViewer;
-
