@@ -8,6 +8,7 @@ const VideoViewer = () => {
 
   const [transcription, setTranscription] = useState([]);
   const [paragraphTimestamps, setParagraphTimestamps] = useState([]);
+  const [highlightedParagraph, setHighlightedParagraph] = useState<HTMLElement | null>(null);
 
   const ref = useRef<ReactPlayer>(null);
 
@@ -35,8 +36,13 @@ const VideoViewer = () => {
     const currentParagraph = paragraphTimestamps.findIndex((timestamp: number) => progress.playedSeconds < timestamp) - 1;
 
     if (currentParagraph > 0) {
+      highlightedParagraph?.classList.remove('underline');
+
       const paragraph = document.getElementById(`paragraph-${currentParagraph}`);
       paragraph?.scrollIntoView({ behavior: 'smooth' });
+      paragraph?.classList.add('underline');
+
+      setHighlightedParagraph(paragraph);
     }
   };
 
@@ -44,8 +50,13 @@ const VideoViewer = () => {
     setPlaying(true);
     ref.current?.seekTo(seconds, 'seconds');
 
+    highlightedParagraph?.classList.remove('underline');
+
     const paragraph = document.getElementById(`paragraph-${paragraph_id}`);
     paragraph?.scrollIntoView({ behavior: 'smooth' });
+    paragraph?.classList.add('underline');
+
+    setHighlightedParagraph(paragraph);
   };
 
   return (
