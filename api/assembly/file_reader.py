@@ -6,7 +6,7 @@ from ebooklib import epub
 from bs4 import BeautifulSoup
 
 
-def concat_paragraphs(paragraphs: list[tuple[str, int|str]]):
+def concat_paragraphs(paragraphs):
     """Concatenates paragraphs
 
     Args:
@@ -15,7 +15,7 @@ def concat_paragraphs(paragraphs: list[tuple[str, int|str]]):
     Returns:
         list[tuple[str, int]]: List of concatenated paragraphs and their page number.
     """
-    new_paragraphs: list[tuple[str, int|str]] = [paragraphs[0]]
+    new_paragraphs = [paragraphs[0]]
     curr_i_new = 0
     for p in paragraphs:
         if len(new_paragraphs[curr_i_new][0].split(' ')) < 200:
