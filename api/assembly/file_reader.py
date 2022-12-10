@@ -1,9 +1,9 @@
+import os
+import fitz
+import shutil
 import ebooklib
 from ebooklib import epub
-import fitz
 from bs4 import BeautifulSoup
-import os
-import shutil
 
 
 def get_paragraphs_from_pdf(file):
