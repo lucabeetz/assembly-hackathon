@@ -8,7 +8,6 @@ on:
 jobs:
   build-push-api:
     runs-on: ubuntu-latest
-    needs: [check-api-files-changed]
     if: needs.check-api-files-changed.outputs.files_changed == 'True'
     steps:
       # Only run if changed
