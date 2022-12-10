@@ -9,12 +9,15 @@ import shutil
 def get_paragraphs_from_pdf(file):
     doc = fitz.open(file)
     paragraphs:list[tuple[str, int]] = []
+
     for page in doc:
         blocks = page.get_text("blocks")
         for b in blocks:
-            if b[-1] == 0 and b[4].split(' ').__len__() > 10:
+            if b[-1] == 0 and len(b[4].split(' ')) > 10:
                 paragraphs.append((b[4].strip('\n'), page.number))
+
     return paragraphs
+
 
 def enumerate_p_tags_epub(epub_filepath, book_uid = None):
     # Read metadata from old book
@@ -39,37 +42,47 @@ def enumerate_p_tags_epub(epub_filepath, book_uid = None):
         if item.get_type() == ebooklib.ITEM_DOCUMENT:
             soup = BeautifulSoup(item.get_body_content(), 'html.parser')
             id = 0
+
             for p in soup.find_all('p'):
                 p['id'] = f'{book_uid}_{item.get_name()}_{id}'
-                id+=1
+                id += 1
+
             item.set_content(str(soup))
+
         new_book.add_item(item)
         new_book.spine.append(item)
+
     # delete old book and write new book
     try:
         os.remove(epub_filepath)
     except:
         shutil.rmtree(epub_filepath)
+
     epub.write_epub(epub_filepath, new_book, {})
 
+
+def chapter_to_paragraphs(chapter, i):
+    soup = BeautifulSoup(chapter.get_body_content(), 'html.parser')
+    paragraphs: list[tuple[str, str]] = []
+
+    for p in soup.find_all('p'):
+        p_id = p['id']
+        if len(p.get_text().split(' ')) > 5:
+            paragraphs.append((p.get_text(), p_id))
+
+    return paragraphs, i
+
+
 def get_paragraphs_from_epub(epub_filepath):
-    def chapter_to_paragraphs(chapter, i):
-        soup = BeautifulSoup(chapter.get_body_content(), 'html.parser')
-        paragraphs: list[tuple[str, str]] = []
-        for p in soup.find_all('p'):
-            p_id = p['id']
-            if len(p.get_text().split(' ')) > 5:
-                paragraphs.append(p.get_text(), p_id)
-        return paragraphs, i
-        
     book = epub.read_epub(epub_filepath)
     chapters = list(book.get_items_of_type(ebooklib.ITEM_DOCUMENT))
 
     paragraphs: list[tuple[str,str]] = []
     i = 0
     for c in chapters:
-        paras, i = chapter_to_paragraphs(c,i)
+        paras, i = chapter_to_paragraphs(c, i)
         if len(paras) > 0:
-            paragraphs.append(paras)
+            for p in paras:
+                paragraphs.append(p)
 
     return paragraphs

@@ -1,5 +1,4 @@
 import os
-from api.file_reader import get_paragraphs_from_pdf, get_paragraphs_from_epub
 import cohere
 import pinecone
 import requests
@@ -8,6 +7,7 @@ from fastapi import FastAPI, UploadFile, HTTPException, Form
 from pydantic import BaseModel
 from pytube import YouTube
 
+from assembly.file_reader import get_paragraphs_from_pdf, get_paragraphs_from_epub, enumerate_p_tags_epub
 from assembly.utils import start_transcription, get_paragraphs_from_transcript, get_info_from_transcript
 
 AZURE_WEBHOOK_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/assembly'
@@ -167,25 +167,37 @@ def post_assembly(request: AssemblyRequest):
 '''
 Submit a file for embedding
 
-This endpoint creates paragraphs and returns the paragraph embeddings.
+This endpoint creates paragraph embeddings and uploads them to pinecone.
 '''
 
 @app.post('/upload')
-def transcribe(file: UploadFile, resource_id: str = Form()):
+async def transcribe(file: UploadFile, resource_id: str = Form()):
     print(f'Received {file.filename} of type: {file.content_type}')
     if file.content_type not in ['application/pdf', 'application/epub+zip']:
         raise HTTPException(status_code=400, detail='File type not supported')
 
+    # Temporarily save file
     paragraphs: list[tuple[str, int|str]] = []
+    file_contents = await file.read()
+    local_path = f'./tmp/{file.filename}'
+    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+    with open(local_path, 'wb') as f:
+        f.write(file_contents)
 
     # Get paragraphs from file
     if file.content_type == 'application/pdf':
-        paragraphs = get_paragraphs_from_pdf(file.file)
+        paragraphs = get_paragraphs_from_pdf(file_contents)
     elif file.content_type == 'application/epub+zip':
-        paragraphs = get_paragraphs_from_epub(file.file)
+        enumerate_p_tags_epub(local_path)
+        paragraphs = get_paragraphs_from_epub(local_path)
+
+    os.remove(local_path)
 
     # Embed paragraphs
-    paragraphs_texts, paragraphs_ids = [(text, locater) for (text, locater) in paragraphs]
+    paragraphs_texts, paragraphs_ids = map(list, zip(*paragraphs))
+    print(f'Embedding {len(paragraphs)} paragraphs...')
+
     response = co.embed(paragraphs_texts, model='large')
     page_embeddings = response.embeddings
     print(f'Cohere embeddings: {len(page_embeddings)}, dim: {len(page_embeddings[0])}')
@@ -200,6 +212,7 @@ def transcribe(file: UploadFile, resource_id: str = Form()):
             {
                 'resource_id': resource_id,
                 'paragraph_id': paragraphs_ids[i],
+                'text': paragraphs_texts[i],
                 'content_type': file.content_type,
             }
         ))
