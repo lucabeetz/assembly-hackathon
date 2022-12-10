@@ -1,6 +1,9 @@
 import ebooklib
 from ebooklib import epub
 import fitz
+from bs4 import BeautifulSoup
+import os
+import shutil
 
 
 def get_paragraphs_from_pdf(file):
@@ -13,20 +16,60 @@ def get_paragraphs_from_pdf(file):
                 paragraphs.append((b[4].strip('\n'), page.number))
     return paragraphs
 
+def enumerate_p_tags_epub(epub_filepath, book_uid = None):
+    # Read metadata from old book
+    old_book = epub.read_epub(epub_filepath)
+    book_uid = old_book.get_metadata('DC', 'identifier')[0][0] if book_uid == None else book_uid
+    old_book_title = old_book.get_metadata('DC', 'title')[0][0]
+    old_book_language = old_book.get_metadata('DC', 'language')[0][0]
+    old_book_author = old_book.get_metadata('DC', 'creator')[0][0]
 
-def get_paragraphs_from_epub(path):
-    book = epub.read_epub(path)
-    parts = list(book.get_items_of_type(ebooklib.ITEM_DOCUMENT))
-    paragraphs = parts_to_paragraphs(parts)
-    return paragraphs
+    # Create a new book with the same metadata
+    new_book = epub.EpubBook()
+    new_book.set_identifier(book_uid)
+    new_book.set_title(old_book_title)
+    new_book.set_language(old_book_language)
+    new_book.add_author(old_book_author)
+    new_book.spine = old_book.spine
 
-def parts_to_paragraphs(parts):
-    paragraphs = []
-    for part in parts:
-        soup = BeautifulSoup(part.get_body_content(), 'html.parser')
+    # Loop through all content of the old book 
+    # inject uid's into the p tags 
+    # and add the content to the new book
+    for item in old_book.get_items():
+        if item.get_type() == ebooklib.ITEM_DOCUMENT:
+            soup = BeautifulSoup(item.get_body_content(), 'html.parser')
+            id = 0
+            for p in soup.find_all('p'):
+                p['id'] = f'{book_uid}_{item.get_name()}_{id}'
+                id+=1
+            item.set_content(str(soup))
+        new_book.add_item(item)
+        new_book.spine.append(item)
+    # delete old book and write new book
+    try:
+        os.remove(epub_filepath)
+    except:
+        shutil.rmtree(epub_filepath)
+    epub.write_epub(epub_filepath, new_book, {})
 
+def get_paragraphs_from_epub(epub_filepath):
+    def chapter_to_paragraphs(chapter, i):
+        soup = BeautifulSoup(chapter.get_body_content(), 'html.parser')
+        paragraphs = {}
         for p in soup.find_all('p'):
-            text = p.get_text()
-            paragraphs.append(text)
+            p_id = p['id']
+            if len(p.get_text().split(' ')) > 5:
+                paragraphs[p_id] = p.get_text()
+        return paragraphs, i
+        
+    book = epub.read_epub(epub_filepath)
+    chapters = list(book.get_items_of_type(ebooklib.ITEM_DOCUMENT))
 
-    return paragraph
+    paragraphs = []
+    i = 0
+    for c in chapters:
+        paras, i = chapter_to_paragraphs(c,i)
+        if len(paras) > 0:
+            paragraphs.append(paras)
+
+    return {"paragraphs": paragraphs}
