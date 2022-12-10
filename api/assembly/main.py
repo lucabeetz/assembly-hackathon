@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from pytube import YouTube
 
-from assembly.utils import start_transcription, get_paragraphs_from_transcript
+from assembly.utils import start_transcription, get_paragraphs_from_transcript, get_info_from_transcript
 
 AZURE_WEBHOOK_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/assembly'
 
@@ -112,10 +112,14 @@ def post_assembly(request: AssemblyRequest):
     video_id = transcription_id_to_video_id[request.transcript_id]
     print(f'Assembly {request.transcript_id} for video {video_id} completed!')
 
-    # Get transcription from AssemblyID
+    # Get paragraphs from Assembly
     paragraphs_response = get_paragraphs_from_transcript(request.transcript_id) 
     paragraphs = paragraphs_response['paragraphs']
     paragraph_texts = [p['text'] for p in paragraphs]
+
+    # Get transcript info from Assmbly
+    transcript_response = get_info_from_transcript(request.transcript_id)
+    summary = transcript_response['summary']
 
     # Get paragraph embeddings
     print('Getting paragraph embeddings...')
@@ -147,12 +151,13 @@ def post_assembly(request: AssemblyRequest):
         'paragraphs': paragraphs,
         'transcription_id': request.transcript_id,
         'video_id': video_id,
+        'summary': summary,
     }
 
     supabase_response = requests.post(
         TRANSCRIPTION_EDGE_FUNCTION,
         headers=supabase_headers,
         json=supabase_body,
-    )
+    ).json()
     
     print(supabase_response)

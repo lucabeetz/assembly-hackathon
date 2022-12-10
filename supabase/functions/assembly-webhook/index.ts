@@ -21,7 +21,7 @@ serve(async (req) => {
     { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
   );
 
-  const { transcription_id, paragraphs, video_id } = await req.json()
+  const { transcription_id, paragraphs, video_id, summary } = await req.json()
   console.log(`Received transcription: ${transcription_id}`);
 
   // Save paragraphs to storage
@@ -29,11 +29,13 @@ serve(async (req) => {
     .storage
     .from('public')
     .upload(`${video_id}.json`, JSON.stringify({ paragraphs }));
+  console.log(storageResponse);
 
-  // Set video status to complete
+  // Set video status to complete and add summary
   const upsertRes = await supabase
     .from('videos')
-    .upsert({ id: video_id, processed: true });
+    .upsert({ id: video_id, summary, processed: true });
+  console.log(upsertRes);
 
   const responseBody = {
     transcription_id,

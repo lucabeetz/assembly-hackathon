@@ -101,7 +101,13 @@ def submit_for_transcription(file_url, webhook=None):
     }
 
     # Build request body
-    json = { 'audio_url': file_url }
+    json = {
+        'audio_url': file_url,
+        # 'auto_chapters': True,
+        'summarization': True,
+        'summary_model': 'informative',
+        'summary_type': 'paragraph'
+    }
     if webhook:
         json['webhook_url'] = webhook
 
@@ -143,6 +149,17 @@ Get paragraphs from a completed transcription
 def get_paragraphs_from_transcript(transcript_id):
     headers = { 'authorization': os.environ['ASSEMBLY_API_KEY'] }
     endpoint = f'{ASSEMBLY_TRANSCRIPT_ENDPOINT}/{transcript_id}/paragraphs'
+
+    response = requests.get(endpoint, headers=headers)
+    return response.json()
+
+
+'''
+Get complete transcription info
+'''
+def get_info_from_transcript(transcript_id):
+    headers = { 'authorization': os.environ['ASSEMBLY_API_KEY'] }
+    endpoint = f'{ASSEMBLY_TRANSCRIPT_ENDPOINT}/{transcript_id}'
 
     response = requests.get(endpoint, headers=headers)
     return response.json()
