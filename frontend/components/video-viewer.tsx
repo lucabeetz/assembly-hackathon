@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import ReactPlayer from 'react-player'
 import supabase from '../utils/supabase';
 
-const VideoViewer = () => {
+const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
   const [playing, setPlaying] = useState(false);
 
   const [transcription, setTranscription] = useState([]);
@@ -13,11 +13,19 @@ const VideoViewer = () => {
 
   useEffect(() => {
     const loadTranscription = async () => {
-      const res = await fetch('https://ctejpbhbokuzzivioffl.supabase.co/storage/v1/object/public/transcriptions/paragraphs.json')
-      const body = await res.json();
+      const { data, error } = await supabase
+        .storage
+        .from('public')
+        .download(`${videoId}.json`);
+
+      const body = JSON.parse(await data!.text());
 
       if (body) {
         setTranscription(body.paragraphs);
+        console.log(body.paragraphs);
+        console.log(paragraphId);
+
+        // seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId);
 
         const timestamps = body.paragraphs.map((paragraph: any) => paragraph.start / 1000);
         setParagraphTimestamps(timestamps);
@@ -25,7 +33,15 @@ const VideoViewer = () => {
     };
 
     loadTranscription();
-  }, []);
+  }, [videoId]);
+
+  useEffect(() => {
+    console.log(transcription[paragraphId]);
+    
+    if (transcription.length > 0) {
+      seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId);
+    }
+  }, [paragraphId]);
 
   const handlePlay = () => {
     setPlaying(!playing);
@@ -59,14 +75,12 @@ const VideoViewer = () => {
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
-          url={'https://www.youtube.com/watch?v=YoXxevp1WRQ'} />
-
-        <div onClick={handlePlay}>
-          {playing ? 'Pause' : 'Play'}
-        </div>
+          onReady={() => seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId)}
+          controls
+          url={videoUrl} />
       </div>
-      <div className='w-1/2 h-1/4 overflow-auto'>
-        {transcription.map((paragraph, index) => (
+      <div className='h-1/4 overflow-auto p-4'>
+        {transcription.map((paragraph: any, index: number) => (
           <div id={`paragraph-${index}`} key={index} className='mt-2' onClick={() => seekVideo(paragraph.start / 1000, index)}>
             <p>{paragraph.text}</p>
           </div>
