@@ -20,7 +20,6 @@ const VerbelNavbar = () => {
             <Navbar.Collapse>
                 <Navbar.Link
                     href="/"
-                    active={true}
                 >
                     Home
                 </Navbar.Link>

@@ -7,18 +7,13 @@ import { ReactReader } from "react-reader";
 import { useRouter } from 'next/router'
 
 
+const EPubViewer = ({ url, highlightedLocationID }) => {
 
-const EPubViewer = ({ url }) => {
-
-    // const router = useRouter()
-    // const { highlight } = router.query
-
-    const [location, setLocation] = useState<string | null>(null)
+    const [location, setLocation] = useState<string | undefined>(highlightedLocationID);
     const locationChanged = (epubcifi: string) => {
         // epubcifi is a internal string used by epubjs to point to a location in an epub. It looks like this: epubcfi(/6/6[titlepage]!/4/2/12[pgepubid00003]/3:0)
         setLocation(epubcifi)
         console.log(epubcifi)
-
     }
 
     // useEffect(() => {
@@ -32,7 +27,7 @@ const EPubViewer = ({ url }) => {
             <ReactReader
                 location={location}
                 locationChanged={locationChanged}
-                url="/lemon.epub"
+                url={url}
                 showToc={false}
             />
         </div>
