@@ -13,12 +13,11 @@ type Paragraph = {
 const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
   const [playing, setPlaying] = useState(false);
 
-  const [transcription, setTranscription] = useState<Paragraph[]>([]);
-  const [paragraphTimestamps, setParagraphTimestamps] = useState<number[][]>(
-    []
-  );
-  const [highlightedParagraph, setHighlightedParagraph] =
-    useState<HTMLElement | null>(null);
+  const [transcription, setTranscription] = useState([]);
+  const [paragraphTimestamps, setParagraphTimestamps] = useState([]);
+  const [videoReady, setVideoReady] = useState(false);
+
+  const [highlightedParagraph, setHighlightedParagraph] = useState<HTMLElement | null>(null);
 
   const ref = useRef<ReactPlayer>(null);
 
@@ -32,10 +31,8 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
 
       if (body) {
         setTranscription(body.paragraphs);
-        console.log(body.paragraphs);
-        console.log(paragraphId);
 
-        // seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId);
+        seekVideo(body.paragraphs[paragraphId]['start'] / 1000, paragraphId);
 
         const timestamps = body.paragraphs.map((paragraph: any) => [
           paragraph.start / 1000,
@@ -49,21 +46,23 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
   }, [videoId]);
 
   useEffect(() => {
-    console.log(transcription[paragraphId]);
-
     if (transcription.length > 0) {
-      seekVideo(transcription[paragraphId]["start"] / 1000, paragraphId);
+      if (transcription[paragraphId]) {
+        seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId); 
+      }
     }
-  }, [paragraphId]);
+  }, [paragraphId, transcription, videoReady]);
 
   const handleProgress = (progress: any) => {
     changeHighlightedParagraph(progress.playedSeconds);
   };
 
   const seekVideo = (seconds: number, paragraph_id: number) => {
+    ref.current?.seekTo(seconds, 'seconds');
+
+    const paragraph = document.getElementById(`paragraph-${paragraph_id}`);
+    paragraph?.scrollIntoView({ behavior: 'smooth' });
     setPlaying(true);
-    ref.current?.seekTo(seconds, "seconds");
-    changeHighlightedParagraph(seconds);
   };
 
   const changeHighlightedParagraph = (currentTimestamp: number) => {
@@ -99,21 +98,19 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
-          onReady={() =>
-            seekVideo(transcription[paragraphId]["start"] / 1000, paragraphId)
-          }
+          onReady={() => setVideoReady(true)}
           controls
           url={videoUrl}
         />
       </div>
-      <div className="h-1/4 overflow-auto p-4">
+
+      <div className='h-full overflow-auto'>
         {transcription.map((paragraph: any, index: number) => (
           <div
             id={`paragraph-${index}`}
             key={index}
             className="mt-2"
-            onClick={() => seekVideo(paragraph.start / 1000, index)}
-          >
+            onClick={() => seekVideo(paragraph.start / 1000, index)}>
             <p>{paragraph.text}</p>
           </div>
         ))}
