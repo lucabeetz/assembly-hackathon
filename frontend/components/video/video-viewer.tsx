@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { timeStamp } from "console";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 import ReactPlayer from "react-player";
 import supabase from "../../utils/supabase";
@@ -10,16 +11,13 @@ type Paragraph = {
 };
 
 const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
-  // console.log(videoUrl, paragraphId, videoId);
-
   const [playing, setPlaying] = useState(false);
 
-  const [transcription, setTranscription] = useState<Paragraph[]>([]);
-  const [paragraphTimestamps, setParagraphTimestamps] = useState<number[][]>(
-    []
-  );
-  const [highlightedParagraph, setHighlightedParagraph] =
-    useState<HTMLElement | null>(null);
+  const [transcription, setTranscription] = useState([]);
+  const [paragraphTimestamps, setParagraphTimestamps] = useState([]);
+  const [videoReady, setVideoReady] = useState(false);
+
+  const [highlightedParagraph, setHighlightedParagraph] = useState<HTMLElement | null>(null);
 
   const ref = useRef<ReactPlayer>(null);
 
@@ -33,8 +31,6 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
 
       if (body) {
         setTranscription(body.paragraphs);
-        console.log(body.paragraphs);
-        console.log(paragraphId);
 
         if (paragraphId)
           seekVideo(body.paragraphs[paragraphId]['start'] / 1000, paragraphId);
@@ -56,16 +52,18 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
         seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId);
       }
     }
-  }, [paragraphId]);
+  }, [paragraphId, transcription, videoReady]);
 
   const handleProgress = (progress: any) => {
     changeHighlightedParagraph(progress.playedSeconds);
   };
 
   const seekVideo = (seconds: number, paragraph_id: number) => {
+    ref.current?.seekTo(seconds, 'seconds');
+
+    const paragraph = document.getElementById(`paragraph-${paragraph_id}`);
+    paragraph?.scrollIntoView({ behavior: 'smooth' });
     setPlaying(true);
-    ref.current?.seekTo(seconds, "seconds");
-    changeHighlightedParagraph(seconds);
   };
 
   const changeHighlightedParagraph = (currentTimestamp: number) => {
@@ -101,11 +99,7 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
-          onReady={() => {
-            if (paragraphId)
-              seekVideo(transcription[paragraphId]["start"] / 1000, paragraphId)
-          }
-          }
+          onReady={() => setVideoReady(true)}
           controls
           url={videoUrl}
         />

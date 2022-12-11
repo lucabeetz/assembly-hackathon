@@ -3,8 +3,7 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const VideoCard = (video: any) => {
-  video = video.video;
+const VideoCard = ({video}: any) => {
   const router = useRouter();
 
   const handleClick = () => {
@@ -12,7 +11,10 @@ const VideoCard = (video: any) => {
   };
 
   return (
-    <div className="mr-2 ml-2 mt-2 mb-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+    <div
+      className="m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700"
+      onClick={handleClick}
+    >
       <a href="#">
         <img className="" src={video.thumbnail} alt="" />
       </a>
