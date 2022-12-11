@@ -1,10 +1,11 @@
-import VideoInput from '../components/video-input';
+import Prompt from "../components/prompt";
+import QueryView from "../components/query-view";
+import VideoInput from "../components/video-input";
 
 const Home = () => {
   return (
     <div className="">
-      <p>Verbel</p>
-      <VideoInput />
+      <QueryView />
     </div>
   );
 };
