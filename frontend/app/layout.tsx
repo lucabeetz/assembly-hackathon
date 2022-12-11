@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <SupabaseListener accessToken={session?.access_token} />
 
-        <VerbelNavbar/>
+        {/* <VerbelNavbar/> */}
 
         {children}
 
