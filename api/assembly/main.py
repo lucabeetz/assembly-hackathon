@@ -10,7 +10,7 @@ from pytube import YouTube
 from assembly.file_reader import get_paragraphs_from_pdf, get_paragraphs_from_epub, enumerate_p_tags_epub
 from assembly.utils import start_transcription, get_paragraphs_from_transcript, get_info_from_transcript
 
-AZURE_WEBHOOK_ENDPOINT = 'http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/assembly'
+AZURE_WEBHOOK_ENDPOINT = 'https://7cc4-2003-d5-71d-30db-5d35-b1eb-ae6e-b2a8.eu.ngrok.io/assembly'
 
 TRANSCRIPTION_EDGE_FUNCTION = 'https://ctejpbhbokuzzivioffl.functions.supabase.co/assembly-webhook'
 
@@ -83,9 +83,10 @@ def post_query(request: QueryRequest):
     for entry in query_results:
         response_items.append({
             'score': entry['score'],
-            'video_id': entry.metadata['video_id'],
+            'resource_id': entry.metadata['resource_id'],
             'paragraph_id': entry.metadata['paragraph_id'],
             'text': entry.metadata['text'],
+            'content_type': entry.metadata['content_type'],
         })
 
     return response_items
@@ -164,6 +165,8 @@ def post_assembly(request: AssemblyRequest):
     
     print(supabase_response)
 
+    return {'status': 'ok'}
+
 
 '''
 Submit a file for embedding
@@ -172,7 +175,7 @@ This endpoint creates paragraph embeddings and uploads them to pinecone.
 '''
 
 @app.post('/upload')
-async def transcribe(file: UploadFile, resource_id: str = Form()):
+async def post_upload(file: UploadFile, resource_id: str = Form()):
     print(f'Received {file.filename} of type: {file.content_type}')
     if file.content_type not in ['application/pdf', 'application/epub+zip']:
         raise HTTPException(status_code=400, detail='File type not supported')
