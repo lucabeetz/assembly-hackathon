@@ -6,7 +6,8 @@ import React from "react";
 const VideoCard = ({video}: any) => {
   const router = useRouter();
 
-  const handleClick = () => {
+  const handleClick = (e) => {
+    e.preventDefault();
     router.push("video/" + video.id);
   };
 
