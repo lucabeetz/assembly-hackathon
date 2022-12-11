@@ -10,7 +10,7 @@ from pytube import YouTube
 from assembly.file_reader import get_paragraphs_from_pdf, get_paragraphs_from_epub, enumerate_p_tags_epub
 from assembly.utils import start_transcription, get_paragraphs_from_transcript, get_info_from_transcript
 
-AZURE_WEBHOOK_ENDPOINT = 'https://7cc4-2003-d5-71d-30db-5d35-b1eb-ae6e-b2a8.eu.ngrok.io/assembly'
+AZURE_WEBHOOK_ENDPOINT = 'https://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/assembly'
 
 TRANSCRIPTION_EDGE_FUNCTION = 'https://ctejpbhbokuzzivioffl.functions.supabase.co/assembly-webhook'
 
