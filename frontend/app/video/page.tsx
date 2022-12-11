@@ -6,7 +6,7 @@ const VideoViewer = dynamic(() => import('../../components/video-viewer'), { ssr
 const Video = () => {
   return (
     <div>
-      <VideoViewer />
+      {/* <VideoViewer /> */}
     </div>
   );
 }
