@@ -25,44 +25,15 @@ const VideoList = () => {
     getVideos();
   }, []);
 
-  const handleClick = (id: string) => {
-    router.push("video/" + id);
-  };
   return (
     <div className="grid grid-cols-5 grid-flow-row">
       {videos.map((video: any, index: number) => (
-        <VideoCard video={video} key={index} />
+        <VideoCard
+          video={video}
+          key={index}
+        />
       ))}
     </div>
-  );
-
-  return (
-    <Table hoverable striped>
-      <Table.Head>
-        <Table.HeadCell>Thumbnail</Table.HeadCell>
-        <Table.HeadCell>Title</Table.HeadCell>
-      </Table.Head>
-      <Table.Body className="divide-y">
-        {videos.map((video: any, index: number) => (
-          <Table.Row
-            className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
-            key={video.id}
-            onClick={(e) => handleClick(video.id)}
-          >
-            <Table.Cell>
-              <Avatar
-                img={video.thumbnail}
-                placeholderInitials="N/A"
-                size="md"
-              />
-            </Table.Cell>
-            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-              {video.title}
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table>
   );
 };
 
