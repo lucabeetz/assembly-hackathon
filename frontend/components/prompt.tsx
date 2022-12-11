@@ -1,7 +1,9 @@
+"use client";
+
 const Prompt = () => {
   return (
-    <div className="flex items-center justify-center">
-      <form className="flex h-screen items-center">
+    <div className="flex mt-6 items-center justify-center">
+      <form className="flex items-center w-1/2 justify-center">
         <label htmlFor="simple-search" className="sr-only">
           Search
         </label>
@@ -31,6 +33,7 @@ const Prompt = () => {
         </div>
         <button
           type="submit"
+          onClick={() => alert("Search")}
           className="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           <svg
