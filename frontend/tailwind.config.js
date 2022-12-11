@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const colors = require('tailwindcss/colors')
+const colors = require("tailwindcss/colors");
 
 module.exports = {
   theme: {
@@ -23,7 +23,7 @@ module.exports = {
       },
     },
   },
-  darkMode: 'media',
+  darkMode: "media",
   content: [
     "./node_modules/flowbite-react/**/*.js",
     "./app/**/*.{js,ts,jsx,tsx}",

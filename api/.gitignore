@@ -8,3 +8,6 @@ __pycache__
 .ipynb_checkpoints
 *.egg-info
 *.mp4
+*.epub
+
+ngrok
