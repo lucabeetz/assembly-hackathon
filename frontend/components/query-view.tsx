@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import supabase from "../utils/supabase";
-import VideoViewer from "./video-viewer";
+import VideoViewer from "./video/video-viewer";
 import Library from "../app/library/page";
-import LoadingSpinner from "./loading_spinner";
+import LoadingSpinner from "./misc/loading_spinner";
 
 const QueryView = () => {
   const [query, setQuery] = useState("");
@@ -74,52 +74,53 @@ const QueryView = () => {
       const displayResults: any[] = [];
 
       for (const result of data) {
-        if (result['content_type'] !== 'video') {
-          if (result['resource_id'].length < 4) {
+        if (result["content_type"] !== "video") {
+          if (result["resource_id"].length < 4) {
             continue;
           }
 
           const { data, error } = await supabase
-            .from('resources')
-            .select('title')
-            .eq('id', result['resource_id']);
+            .from("resources")
+            .select("title")
+            .eq("id", result["resource_id"]);
 
           // Get public url for PDF
-          const { data: { publicUrl } } = await supabase
-            .storage
-            .from('public')
-            .getPublicUrl(`${result['resource_id']}.pdf`);
+          const {
+            data: { publicUrl },
+          } = await supabase.storage
+            .from("public")
+            .getPublicUrl(`${result["resource_id"]}.pdf`);
           console.log(publicUrl);
 
           displayResults.push({
-            'title': data![0]['title'],
-            'paragraph_id': result['paragraph_id'],
-            'score': result['score'],
-            'text': result['text'],
-            'video_id': result['resource_id'],
-            'type': result['content_type'],
-            'pdf_url': publicUrl,
+            title: data![0]["title"],
+            paragraph_id: result["paragraph_id"],
+            score: result["score"],
+            text: result["text"],
+            video_id: result["resource_id"],
+            type: result["content_type"],
+            pdf_url: publicUrl,
           });
         } else {
           const { data, error } = await supabase
-            .from('videos')
-            .select('title, video_url')
-            .eq('id', result['resource_id']);
+            .from("videos")
+            .select("title, video_url")
+            .eq("id", result["resource_id"]);
 
           displayResults.push({
-            'title': data![0]['title'],
-            'video_url': data![0]['video_url'],
-            'paragraph_id': result['paragraph_id'],
-            'score': result['score'],
-            'text': result['text'],
-            'video_id': result['resource_id'],
-            'type': result['content_type']
+            title: data![0]["title"],
+            video_url: data![0]["video_url"],
+            paragraph_id: result["paragraph_id"],
+            score: result["score"],
+            text: result["text"],
+            video_id: result["resource_id"],
+            type: result["content_type"],
           });
         }
       }
 
       setResults(() => displayResults);
-    } catch(error) {
+    } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -130,12 +131,15 @@ const QueryView = () => {
     if (e.keyCode === 13) {
       runQuery(e);
     }
-  }
+  };
 
   return (
     <div className="flex-col w-screen h-screen">
       <div className="flex my-8 items-center justify-center">
-        <form className="flex items-center w-1/2 justify-center" onSubmit={(e) => runQuery(e)}>
+        <form
+          className="flex items-center w-1/2 justify-center"
+          onSubmit={(e) => runQuery(e)}
+        >
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -207,7 +211,6 @@ const QueryView = () => {
       {results.length == 0 && <Library />}
 
       <div className="flex h-full">
-
         {/* <div className="h-full w-1/2 overflow-auto px-4">
           {results.map((result: any, index: number) => (
             <div
@@ -224,27 +227,52 @@ const QueryView = () => {
           ))}
         </div> */}
 
-        <div className="h-full w-1/2 overflow-auto px-4" onClick={() => setTimestamp(Date.now())}>
+        <div
+          className="h-full w-1/2 overflow-auto px-4"
+          onClick={() => setTimestamp(Date.now())}
+        >
           {results.map((result: any, index: number) => (
-            <div key={index} className="mb-2 cursor-pointer" onClick={() => setSelectedResult(result)}>
-              <p className="font-semibold">{result['title']}</p>
+            <div
+              key={index}
+              className="mb-2 cursor-pointer"
+              onClick={() => setSelectedResult(result)}
+            >
+              <p className="font-semibold">{result["title"]}</p>
 
-              {result['type'] === 'pdf' && <p className="text-sm text-slate-500">Page {result['paragraph_id']}</p>}
-              {result['type'] === 'video' && <p className="text-sm text-slate-500">{result['text']}</p>}
+              {result["type"] === "pdf" && (
+                <p className="text-sm text-slate-500">
+                  Page {result["paragraph_id"]}
+                </p>
+              )}
+              {result["type"] === "video" && (
+                <p className="text-sm text-slate-500">{result["text"]}</p>
+              )}
 
-              <p className="text-sm text-slate-500 font-semibold">Score: {result['score']}</p>
+              <p className="text-sm text-slate-500 font-semibold">
+                Score: {result["score"]}
+              </p>
             </div>
           ))}
         </div>
 
         <div className="w-1/2 h-full">
-          {(selectedResult && selectedResult['type'] == 'video') && <VideoViewer key={timestamp} videoUrl={selectedResult['video_url']} videoId={selectedResult['video_id']} paragraphId={selectedResult['paragraph_id']} /> }
+          {selectedResult && selectedResult["type"] == "video" && (
+            <VideoViewer
+              key={timestamp}
+              videoUrl={selectedResult["video_url"]}
+              videoId={selectedResult["video_id"]}
+              paragraphId={selectedResult["paragraph_id"]}
+            />
+          )}
 
-          {(selectedResult && selectedResult['type'] == 'pdf') && (
+          {selectedResult && selectedResult["type"] == "pdf" && (
             <iframe
               className="w-full h-full"
-              src={`${selectedResult['pdf_url']}#page=${selectedResult['paragraph_id']+1}`}
-              key={timestamp} />
+              src={`${selectedResult["pdf_url"]}#page=${
+                selectedResult["paragraph_id"] + 1
+              }`}
+              key={timestamp}
+            />
           )}
         </div>
 
@@ -258,26 +286,6 @@ const QueryView = () => {
           )}
         </div> */}
       </div>
-    </div>
-  );
-
-  return (
-    <div className="flex w-full">
-      <div className="flex flex-col w-1/2 h-screen">
-        <form className="flex w-full p-4">
-          <input
-            className="w-full mr-4"
-            type="text"
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Query"
-          />
-          <button type="submit" onClick={(e) => runQuery(e)}>
-            Search
-          </button>
-        </form>
-
-      </div>
-
     </div>
   );
 };

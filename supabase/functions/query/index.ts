@@ -2,10 +2,11 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-import { serve } from "https://deno.land/std@0.131.0/http/server.ts"
-import { corsHeaders } from "../_shared/cors.ts"
+import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
-const API_QUERY_ENDPOINT = "http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/query";
+const API_QUERY_ENDPOINT =
+  "http://assembly.ayfdhubah8c7hvg5.germanywestcentral.azurecontainer.io/query";
 
 console.log("Query function starting...");
 
@@ -14,7 +15,7 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const { query } = await req.json()
+  const { query } = await req.json();
   console.log(`Received query: ${query}`);
 
   // Make request to API
@@ -25,11 +26,10 @@ serve(async (req) => {
   });
   const responseBody = await apiResponse.json();
 
-  return new Response(
-    JSON.stringify(responseBody), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+  return new Response(JSON.stringify(responseBody), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-})
+});
 
 // To invoke:
 // curl -i --location --request POST 'http://localhost:54321/functions/v1/' \

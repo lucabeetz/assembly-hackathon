@@ -1,31 +1,27 @@
 "use client";
 
-import { Avatar, Table } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import supabase from "../utils/supabase";
 
 import React from "react";
 
-const VideoCard = ({ video }: any) => {
+const PdfCard = (pdf: any) => {
+  pdf = pdf.pdf;
   const router = useRouter();
 
   const handleClick = () => {
-    router.push("video/" + video.id);
+    router.push("pdf/" + pdf.id);
   };
 
+  console.log(pdf);
   return (
     <div
       className="m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700"
-    onClick={handleClick}
+      onClick={() => handleClick()}
     >
-      <a href="#">
-        <img className="" src={video.thumbnail} alt="" />
-      </a>
       <div className="p-4">
         <a href="#">
           <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {video.title}
+            {pdf.title}
           </h5>
         </a>
       </div>
@@ -33,4 +29,4 @@ const VideoCard = ({ video }: any) => {
   );
 };
 
-export default VideoCard;
+export default PdfCard;

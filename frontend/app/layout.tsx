@@ -1,18 +1,22 @@
-import 'server-only';
+import "server-only";
 
-import '../styles/index.css'
+import "../styles/index.css";
 
-import SupabaseListener from '../components/supabase-listener';
-import createClient from '../utils/supabase-server';
+import SupabaseListener from "../components/supabase-listener";
+import createClient from "../utils/supabase-server";
 
-import VerbelNavbar from '../components/navbar';
-import VerbelFooter from '../components/footer';
+import VerbelNavbar from "../components/navbar";
 
-
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = createClient();
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   return (
     <html>
@@ -20,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <SupabaseListener accessToken={session?.access_token} />
 
-        {/* <VerbelNavbar/> */}
+        <VerbelNavbar />
 
         {children}
 

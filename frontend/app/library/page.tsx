@@ -2,8 +2,8 @@
 
 import { Tabs } from "flowbite-react";
 import { useState } from "react";
-
-import VideoList from "../../components/video-list";
+import PdfList from "../../components/pdf/pdf-list";
+import VideoList from "../../components/video/video-list";
 
 const Library = () => {
   const [selected, setSelected] = useState("video");
@@ -23,7 +23,7 @@ const Library = () => {
           active={selected == "pdf"}
           onClick={() => setSelected("pdf")}
         >
-          PDF
+          <PdfList />
         </Tabs.Item>
       </Tabs.Group>
     </div>
