@@ -8,6 +8,7 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
 
   const [transcription, setTranscription] = useState([]);
   const [paragraphTimestamps, setParagraphTimestamps] = useState([]);
+  const [videoReady, setVideoReady] = useState(false);
 
   const ref = useRef<ReactPlayer>(null);
 
@@ -31,7 +32,15 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
     };
 
     loadTranscription();
-  }, []);
+  }, [videoId]);
+
+  useEffect(() => {
+    if (transcription.length > 0) {
+      if (transcription[paragraphId]) {
+        seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId); 
+      }
+    }
+  }, [paragraphId, transcription, videoReady]);
 
   const handleProgress = (progress: any) => {
     const currentParagraph = paragraphTimestamps.findIndex((timestamp: number) => progress.playedSeconds < timestamp) - 1;
@@ -61,6 +70,7 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
+          onReady={() => setVideoReady(true)}
           controls
           url={videoUrl} />
       </div>
