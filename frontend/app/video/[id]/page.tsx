@@ -15,10 +15,9 @@ const Video = ({ params }) => {
   const getVideos = async () => {
     const { data, error } = await supabase.from('videos').select('*').eq('id', params.id);
 
-    if (data) {
-      setVideo(data);
-      console.log(data);
-      
+    if (data && data.length == 1) {
+      setVideo(data[0]);
+      // console.log(data[0]);
     }
   };
 
@@ -31,11 +30,11 @@ const Video = ({ params }) => {
     return <Spinner aria-label="Default status example" />
   }
 
-  const initialTimestamp = searchParams.get('t');
+  const initialParagraphID = searchParams.get('p');
 
   return (
     <div>
-      <VideoViewer video_url={video[0].video_url} id={video[0].id} initialTimestamp={initialTimestamp} />
+      <VideoViewer videoUrl={video.video_url} videoId={video.id} paragraphId={initialParagraphID} />
     </div>
   );
 }

@@ -10,6 +10,8 @@ type Paragraph = {
 };
 
 const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
+  // console.log(videoUrl, paragraphId, videoId);
+
   const [playing, setPlaying] = useState(false);
 
   const [transcription, setTranscription] = useState<Paragraph[]>([]);
@@ -34,7 +36,8 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
         console.log(body.paragraphs);
         console.log(paragraphId);
 
-        // seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId);
+        if (paragraphId)
+          seekVideo(body.paragraphs[paragraphId]['start'] / 1000, paragraphId);
 
         const timestamps = body.paragraphs.map((paragraph: any) => [
           paragraph.start / 1000,
@@ -45,13 +48,13 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
     };
 
     loadTranscription();
-  }, [videoId]);
+  }, [paragraphId, videoId]);
 
   useEffect(() => {
-    console.log(transcription[paragraphId]);
-
-    if (transcription.length > 0) {
-      seekVideo(transcription[paragraphId]["start"] / 1000, paragraphId);
+    if (transcription.length > 0 && paragraphId) {
+      if (transcription[paragraphId]) {
+        seekVideo(transcription[paragraphId]['start'] / 1000, paragraphId);
+      }
     }
   }, [paragraphId]);
 
