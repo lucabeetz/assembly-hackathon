@@ -15,6 +15,16 @@ const PdfList = () => {
   const getPdfs = async () => {
     const { data, error } = await supabase.from("resources").select("*");
 
+    for (let result of data!) {
+      // Get public url for PDF
+      const {
+        data: { publicUrl },
+      } = await supabase.storage
+        .from("public")
+        .getPublicUrl(`${result["id"]}.pdf`);
+      result["publicUrl"] = publicUrl;
+    }
+
     if (data) {
       setPdfs(data);
     }
