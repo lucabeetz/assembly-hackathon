@@ -1,6 +1,6 @@
 import 'server-only';
 
-import '../styles/globals.css'
+import '../styles/index.css'
 
 import SupabaseListener from '../components/supabase-listener';
 import createClient from '../utils/supabase-server';
