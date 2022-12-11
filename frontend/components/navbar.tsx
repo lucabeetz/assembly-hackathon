@@ -74,10 +74,10 @@ const VerbelNavbar = () => {
       </Navbar.Brand>
       <Navbar.Toggle />
       <Navbar.Collapse>
-        <Navbar.Link href="/" active={true}>
+        <Navbar.Link href="/">
           Home
         </Navbar.Link>
-        <Navbar.Link href="/library">Library</Navbar.Link>
+        {/* <Navbar.Link href="/library">Library</Navbar.Link> */}
         <Navbar.Link href="/about">About</Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
