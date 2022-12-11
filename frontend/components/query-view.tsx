@@ -249,7 +249,7 @@ const QueryView = () => {
               )}
 
               <p className="text-sm text-slate-500 font-semibold">
-                Score: {result["score"]}
+                Score: {Math.round((result["score"] + Number.EPSILON) * 1000) / 10}
               </p>
             </div>
           ))}
@@ -268,9 +268,8 @@ const QueryView = () => {
           {selectedResult && selectedResult["type"] == "pdf" && (
             <iframe
               className="w-full h-full"
-              src={`${selectedResult["pdf_url"]}#page=${
-                selectedResult["paragraph_id"] + 1
-              }`}
+              src={`${selectedResult["pdf_url"]}#page=${selectedResult["paragraph_id"] + 1
+                }`}
               key={timestamp}
             />
           )}
