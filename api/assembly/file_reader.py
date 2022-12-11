@@ -28,9 +28,16 @@ def concat_paragraphs(paragraphs):
     return new_paragraphs
 
 
-def get_paragraphs_from_pdf(file):
+def get_paragraphs_from_pdf(file, method='by_page'):
     doc = fitz.open(file)
     paragraphs:list[tuple[str, int]] = []
+
+    if method == 'by_page':
+        for i, page in enumerate(doc):
+            text = page.get_text()
+            paragraphs.append((text, i))
+
+        return paragraphs
 
     for page in doc:
         blocks = page.get_text("blocks")
