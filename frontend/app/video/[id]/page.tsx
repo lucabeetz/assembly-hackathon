@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import {  useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import supabase from '../../../utils/supabase';
-const VideoViewer = dynamic(() => import('../../../components/video-viewer'), { ssr: false });
+const VideoViewer = dynamic(() => import('../../../components/video/video-viewer'), { ssr: false });
 
 const Video = ({ params }) => {
   const searchParams = useSearchParams();

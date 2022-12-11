@@ -101,8 +101,10 @@ const VideoViewer = ({ videoUrl, paragraphId, videoId }: any) => {
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           onProgress={handleProgress}
-          onReady={() =>
-            seekVideo(transcription[paragraphId]["start"] / 1000, paragraphId)
+          onReady={() => {
+            if (paragraphId)
+              seekVideo(transcription[paragraphId]["start"] / 1000, paragraphId)
+          }
           }
           controls
           url={videoUrl}
